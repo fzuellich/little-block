@@ -5,11 +5,11 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/keypress/2.1.3/keypress.js"></script>
 	<style type="text/css">
 		#draw {
- 		   border: 1px dashed #aaa;
- 		   display: block;
- 		   margin: 50px auto 0 auto;
-		}
-	</style>
+          border: 1px dashed #aaa;
+          display: block;
+          margin: 50px auto 0 auto;
+      }
+  </style>
 </head>
 <body>
     <h1>Little Block</h1>
@@ -18,9 +18,15 @@
     <p>w for jump!</p>
     <p>F5 to restart game.</p>
 
-	<canvas width="800" height="200" id="draw"></canvas>
+    <canvas width="800" height="200" id="draw"></canvas>
 
-	<script type="text/javascript">
+    <script type="text/javascript" src="board.js"></script>
+    <script type="text/javascript" src="cloud.js"></script>
+    <script type="text/javascript" src="obstacle.js"></script>
+    <script type="text/javascript" src="obstacle_course.js"></script>
+    <script type="text/javascript" src="player.js"></script>
+
+    <script type="text/javascript">
 	// register listener for keyboard
 // https://cdnjs.cloudflare.com/ajax/libs/keypress/2.1.3/keypress.js
 var keylistener = new window.keypress.Listener();
@@ -71,191 +77,17 @@ function randomNumber(min, max) {
     return Math.floor((Math.random() * max) + min);
 }
 
-var Cloud = function(x, y, radius) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
 
-    this.color = _.board.cloud_color;
-    this.border_color = _.board.cloud_border_color;
-};
 
-Cloud.prototype.draw = function(context) {
-    context.fillStyle = this.cloud_color;
-    context.beginPath();
-    context.arc(this.x, this.y, this.radius, 0, Math.PI, false);
-    context.fill();
-    context.lineWidth = 1;
-    context.strokeStyle = this.border_color;
-    context.stroke();
-};
 
-var Board = function(player) {
-    this.update_frame = 0;
-    this.player = player;
 
-    this._clouds = new Array();
-    this._updateClouds();
-}
 
-Board.prototype._updateClouds = function() {
-    this._clouds = new Array();
-    for (var i = 0; i < _.board.cloud_number; i++) {
-        var x = _.board.cloud_width * i;
-        var y = (_.board.cloud_radius + _.board.cloud_height) + (_.board.cloud_height * Math.random() * 1.5);
-        this._clouds.push(new Cloud(x, y, _.board.cloud_radius));
-    }
-}
 
-Board.prototype._drawClouds = function(context) {
-    // draw base line to add clouds
-    context.fillStyle = _.board.cloud_color;
-    context.fillRect(0, 0, _.canvas.width, 25 + _.board.cloud_height);
-
-    // draw clouds
-    for (var i = 0; i < this._clouds.length; i++) {
-        this._clouds[i].draw(context);
-    }
-}
-
-Board.prototype.draw = function(context) {
-    this.update_frame++;
-    if (this.update_frame > _.board.framerate) {
-        this.update_frame = 0;
-        this._updateClouds();
-    }
-
-    this._drawClouds(context);
-
-    // bottom border
-    context.fillStyle = _.board.bottom_border_color;
-    context.fillRect(0, _.obstacle_course.from_ground, _.canvas.width, _.canvas.height - _.obstacle_course.from_ground);
-
-    context.fillStyle = '#333';
-    context.font = "12px Georgia";
-    context.fillText("Score: " + this.player.score, 700, 12);
-}
-
-var Obstacle = function(x, y, width, height) {
-    this.x = x;
-    this.y = y;
-
-    this.color = _.obstacle.color;
-
-    this.width = width;
-    this.height = height;
-}
-
-Obstacle.prototype.draw = function(context) {
-    context.fillStyle = this.color;
-    context.fillRect(this.x, this.y, this.width, this.height);
-}
-
-var ObstacleCourse = function(amount) {
-    this.obstacles = new Array(); // shift and push!
-    this.player_is_colliding = false;
-
-    for (var i = 0; i < amount; i++) {
-        this.obstacles.push(this._createObstacle());
-    }
-}
-
-ObstacleCourse.prototype._createObstacle = function() {
-    var height = randomNumber(_.obstacle.min_height, _.obstacle.max_height);
-    var y = _.obstacle_course.from_ground - height;
-    var x = (_.obstacle.width + _.obstacle.spacing) * this.obstacles.length;
-    return new Obstacle(x, y, _.obstacle.width, height);
-};
-
-ObstacleCourse.prototype._get_current = function() {
-    for (var i = 0; i < this.obstacles.length; i++) {
-        var obs = this.obstacles[i];
-        if ((obs.x + _.obstacle.width) >= _.player.x &&
-            obs.x <= (_.player.x + _.player.width)) {
-            obs.color = 'green';
-            return obs;
-        } else {
-            obs.color = _.obstacle.color;
-        }
-    }
-}
-
-ObstacleCourse.prototype._move = function() {
-    for (var i = 0; i < this.obstacles.length; i++) {
-        this.obstacles[i].x = this.obstacles[i].x - _.obstacle_course.speed;
-
-        if (this.obstacles[i].x < (_.obstacle.spacing * -1)) {
-            this.obstacles.shift();
-            this.obstacles.push(this._createObstacle());
-        }
-    }
-};
-
-ObstacleCourse.prototype.draw = function(context) {
-    for (var i = 0; i < this.obstacles.length; i++) {
-        this.obstacles[i].draw(context);
-    }
-};
-
-ObstacleCourse.prototype.update = function(player) {
-    this._move();
-    var current_obstacle = this._get_current();
-    if (typeof(current_obstacle) === 'undefined') {
-        this.player_is_colliding = false;
-        return;
-    }
-
-    if (current_obstacle.y <= (player.y + _.player.height)) {
-        current_obstacle.color = 'red';
-        this.player_is_colliding = true;
-    } else {
-    	var player_y = (player.y + _.player.height);
-        var obs_y = current_obstacle.y;
-    	console.log(player_y);
-        console.log(obs_y);
-        var points = 1 * ((40 - Math.abs(player_y - obs_y)) / 40);
-        player.update_score(points);
-        this.player_is_colliding = false;
-    }
-};
-
-ObstacleCourse.prototype.player_collides = function() {
-    return this.player_is_colliding;
-}
 
 
 // Player Class -------------------------------
 
-var Player = function(x, y) {
-    this.x = x;
-    this.y = y;
-    this.gravity = 0.2
-    this.velocity = 0;
-    this.falling = false;
-    this.score = 0;
-}
 
-Player.prototype.update_score = function(points) {
-    this.score = this.score + points;
-    this.score = Math.round(this.score);
-}
-
-Player.prototype.update = function() {
-    if (this.falling === true) {
-        this.y = this.y + this.velocity;
-        this.velocity = this.velocity + this.gravity;
-    }
-}
-
-Player.prototype.draw = function() {
-    context.fillStyle = _.player.color;
-    context.fillRect(this.x, this.y, _.player.width, _.player.height);
-}
-
-Player.prototype.jump = function() {
-    this.falling = true;
-    this.velocity = _.player.jump * -1;
-}
 
 var p = new Player(_.player.x, 100);
 
