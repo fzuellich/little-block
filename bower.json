@@ -1,0 +1,22 @@
+{
+  "name": "little-block",
+  "homepage": "https://github.com/fzuellich/little-block",
+  "authors": [
+    "fzuellich" 
+  ],
+  "description": "A simple game made with JavaScript and the html canvas element.",
+  "main": "index.html",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "Keypress": "~2.1.3"
+  }
+}
