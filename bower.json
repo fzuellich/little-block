@@ -2,7 +2,7 @@
   "name": "little-block",
   "homepage": "https://github.com/fzuellich/little-block",
   "authors": [
-    "fzuellich" 
+    "fzuellich"
   ],
   "description": "A simple game made with JavaScript and the html canvas element.",
   "main": "index.html",
@@ -17,6 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "Keypress": "~2.1.3"
+    "Keypress": "~2.1.3",
+    "requirejs": "~2.1.22"
   }
 }
