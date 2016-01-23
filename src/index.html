@@ -1,143 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Little Block</title>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/keypress/2.1.3/keypress.js"></script>
-	<style type="text/css">
-		#draw {
-          border: 1px dashed #aaa;
-          display: block;
-          margin: 50px auto 0 auto;
-      }
-  </style>
+    <title>Little Block</title>
+
+    <script type="text/javascript" src="js/extern/keypress-2.1.3.min.js"></script>
+    <script data-main="js/app" src="js/extern/require.js"></script>
+
+    <style type="text/css">
+        #draw {
+            border: 1px dashed #aaa;
+            display: block;
+            margin: 50px auto 0 auto;
+        }
+    </style>
 </head>
 <body>
+
     <h1>Little Block</h1>
     <p>A little game in Javascript using the <a href="https://dmauro.github.io/Keypress/" target="_blank">Keypress library</a>. Check it out on <a href="https://github.com/fzuellich/little-block" target="_blank">Github</a>.</p>
+
     <h2>Controls:</h2>
     <p>w for jump!</p>
     <p>F5 to restart game.</p>
 
     <canvas width="800" height="200" id="draw"></canvas>
 
-    <script type="text/javascript" src="board.js"></script>
-    <script type="text/javascript" src="cloud.js"></script>
-    <script type="text/javascript" src="obstacle.js"></script>
-    <script type="text/javascript" src="obstacle_course.js"></script>
-    <script type="text/javascript" src="player.js"></script>
-
-    <script type="text/javascript">
-	// register listener for keyboard
-// https://cdnjs.cloudflare.com/ajax/libs/keypress/2.1.3/keypress.js
-var keylistener = new window.keypress.Listener();
-var interval_id = 0;
-
-var _ = {
-
-    board: {
-        bottom_border_color: '#ddd',
-        cloud_number: 40,
-        cloud_height: 7,
-        cloud_width: 22,
-        cloud_radius: 15,
-        cloud_color: '#eee',
-        cloud_border_color: '#ccc',
-        framerate: 10
-    },
-
-    canvas: {
-        height: 200,
-        width: 800
-    },
-
-    player: {
-        width: 36,
-        height: 18,
-        jump: 3,
-        gravity: 0.2,
-        x: 350,
-        color: '#aaa'
-    },
-
-    obstacle: {
-        width: 40,
-        max_height: 50,
-        min_height: 30,
-        spacing: 40,
-        color: '#333'
-    },
-
-    obstacle_course: {
-        from_ground: 190,
-        speed: 4
-    }
-};
-
-function randomNumber(min, max) {
-    return Math.floor((Math.random() * max) + min);
-}
-
-
-
-
-
-
-
-
-
-// Player Class -------------------------------
-
-
-
-var p = new Player(_.player.x, 100);
-
-keylistener.simple_combo('w', function() {
-    p.jump()
-});
-
-// -----------------------------------------------
-
-var context = document.getElementById('draw').getContext('2d');
-
-var board = new Board(p);
-var os = new ObstacleCourse(35);
-
-var current_state;
-
-var running_state = function() {
-    p.update();
-    os.update(p);
-
-    if (os.player_collides() === true) {
-        current_state = game_over;
-    }
-
-    board.draw(context);
-    os.draw(context);
-    p.draw(context);
-}
-
-var game_over = function() {
-    context.fillStyle = '#eee';
-    context.fillRect(0, 0, _.canvas.width, _.canvas.height);
-
-    context.fillStyle = '#333';
-    context.font = "20px Georgia";
-    context.fillText("Game over!", 350, 100);
-
-    context.font = "16px Georgia";
-    context.fillText("Score: " + p.score, 350, 125);
-}
-
-current_state = running_state;
-
-var update = function() {
-    context.clearRect(0, 0, _.canvas.width, _.canvas.height);
-    current_state();
-};
-
-interval_id = setInterval(update, 25);
-
-</script>
 </body>
 </html>
