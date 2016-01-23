@@ -19,10 +19,14 @@ gulp.task('move:dependencies', ['clean:dist'], function() {
 
 gulp.task('make:dev', ['move:dependencies'], function() {
     gulp.src('src/index.html').pipe(gulp.dest('dist'));
-
+    gulp.src('src/js/**/*.js').pipe(gulp.dest('dist/js'));
     gulp.src('src/js/app.js')
         .pipe(requirejsOptimize({optimize: 'none'}))
         .pipe(gulp.dest('dist/js'));
 });
+
+gulp.task('dev', function() {
+    gulp.watch(['./src/**/*', './gulpfile.js', './*.json'], ['make:dev']);
+})
 
 gulp.task('build', ['make:dev']);
